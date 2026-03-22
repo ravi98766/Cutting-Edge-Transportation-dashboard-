@@ -378,3 +378,323 @@ Opportunities:
 5.	Revenue Optimization Strategy
 
 6.	Underutilized Route Marketing Campaign
+
+## DAX
+```
+Date = 
+VAR Maxdate =YEAR(MAX(FactTable_ridership[Date]))
+VAR Mindate =YEAR(MIN(FactTable_ridership[Date]))
+RETURN
+ADDCOLUMNS(
+    FILTER(
+    CALENDARAUTO(),
+    YEAR([Date])>=Mindate &&
+    YEAR([Date])<=Maxdate
+    ),
+    "Year", YEAR([Date]),
+    "Month", FORMAT([Date],"mmm"),
+    "MonthNum", MONTH([Date]),
+    "Day", DAY([Date]),
+    "Weekday", FORMAT([Date],"ddd"),
+    "Week_num",WEEKDAY([Date]),
+    "Quarter","Q-"&QUARTER([Date]),
+    "WeekType", IF(WEEKDAY([Date])=1,"Weekend",IF(WEEKDAY([Date])=7,"Weekend","Weekday")),
+    "WK of Month",
+            VAR FirstDayOfMonth = DATE(YEAR([Date]), MONTH([Date]), 1)
+            VAR DaysInMonth = DAY(EOMONTH([Date], 0))
+            VAR CurrentDate = [Date]
+            VAR DaysFromStart = INT(CurrentDate - FirstDayOfMonth) + 1
+            RETURN 
+            "Week-"&
+                CEILING(DaysFromStart / 7, 1),
+                 "Time", FORMAT([Date], "hh:mm AM/PM")
+           
+)
+```
+
+```
+Age Group label = 
+VAR _AgeGrouppct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_demographics[Age Bucket])))
+VAR _Yaxis= SELECTEDVALUE(Lookup_demographics[Age Bucket])
+VAR _pctvalue= FORMAT(_AgeGrouppct,"0.0%")
+RETURN
+_Yaxis & " ↕ "& _pctvalue
+```
+```
+AgeGrouppct = DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_demographics[Age Bucket])))
+```
+```
+Average Rider Per trip = DIVIDE([Total Riders(passengers)], COUNTROWS(FactTable_ridership))
+```
+```
+Avg Rider Age = AVERAGE(Lookup_demographics[Age])
+```
+```
+Blank measure = 300
+```
+```
+Blank measure2 = 0
+```
+
+```
+BottomN = 
+VAR _Ranking =
+    RANKX(
+        ALL(Lookup_buses[BusNumber]),
+        [Total Riders(passengers)],
+        ,
+        ASC,
+        DENSE
+    )
+RETURN
+IF(_Ranking <= 5, [Total Riders(passengers)], BLANK())
+```
+```
+Busiest Route = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    Lookup_routes, 
+    Lookup_routes[RouteName],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _TopRoute= TOPN(1,_TotalPassengers_perroute, [Total Passengers], DESC)
+RETURN
+MAXX(_TopRoute,Lookup_routes[RouteName])
+```
+```
+Caption = 
+IF( SELECTEDVALUE('Dynamic TopN'[Dynamic TopN Order])=0, 
+"Under Performing Buses are selected",
+"Top Performing Buses are selected")
+
+```
+```
+CF Age Group label = 
+VAR _AgeGrouppct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_demographics[Age Bucket])))
+RETURN
+IF(_AgeGrouppct>0.19, "#FO9383","#CCCCCC")
+
+```
+```
+CF Occupation = 
+VAR _Occupationpct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_demographics)))
+RETURN
+IF(_Occupationpct>0.19, "#E1135F","#C7D8ED")
+```
+```
+CF Route = 
+VAR _Routepct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_routes)))
+RETURN
+IF(_Routepct>0.19, "#E1135F","#C7D8ED")
+```
+```
+CF Weekday = 
+VAR _OverallAvg= CALCULATE(DIVIDE([Total Riders(passengers)], DISTINCTCOUNT('Date'[Weekday])), ALL('Date'))
+RETURN
+IF([Total Riders(passengers)]>_OverallAvg,1,0)
+```
+```
+CF YoY check = IF([YoY change]<0,"#E91A63","Green")
+Down Hour Of Operation = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    FactTable_ridership, 
+    FactTable_ridership[Time],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _DownTime= TOPN(1,_TotalPassengers_perroute, [Total Passengers], ASC)
+RETURN
+MAXX(_DownTime,FactTable_ridership[Time])
+```
+```
+Female Chart = 
+VAR _Female= DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Female"), [Total Riders(passengers)])
+VAR _No_of_icons= 10
+VAR _No_of_fillicons= _Female*_No_of_icons
+VAR _No_of_empty_icons= _No_of_icons- _No_of_fillicons
+VAR _filledicons= "●"
+VAR _emptyicons= "○"
+VAR _bars= REPT(_filledicons,_No_of_fillicons) & REPT(_emptyicons,_No_of_empty_icons)
+
+RETURN
+_bars
+```
+```
+Least Busiest Route = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    Lookup_routes, 
+    Lookup_routes[RouteName],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _TopRoute= TOPN(1,_TotalPassengers_perroute, [Total Passengers], ASC)
+RETURN
+MAXX(_TopRoute,Lookup_routes[RouteName])
+```
+```
+Male Chart = 
+VAR _Male= DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Male"), [Total Riders(passengers)])
+VAR _No_of_icons= 10
+VAR _No_of_fillicons= _Male*_No_of_icons
+VAR _No_of_empty_icons= _No_of_icons- _No_of_fillicons
+VAR _filledicons= "●"
+VAR _emptyicons= "○"
+VAR _bars= REPT(_filledicons,_No_of_fillicons) & REPT(_emptyicons,_No_of_empty_icons)
+
+RETURN
+_bars
+```
+```
+Occupation label = 
+VAR _Occupationpct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_demographics[Occupation])))
+VAR _Yaxis= SELECTEDVALUE(Lookup_demographics[Occupation])
+VAR _indicator= IF(_Occupationpct>0.19,"✔","❌")
+VAR _separtor= IF(_Occupationpct>0.19,"|")
+VAR _pctvalue= FORMAT(_Occupationpct,"0.0%")
+RETURN
+_Yaxis & "|" & _pctvalue &_separtor &_indicator 
+```
+```
+Other Chart = 
+VAR _Other= DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Other"), [Total Riders(passengers)])
+VAR _No_of_icons= 10
+VAR _No_of_fillicons= _Other*_No_of_icons
+VAR _No_of_empty_icons= _No_of_icons- _No_of_fillicons
+VAR _filledicons= "●"
+VAR _emptyicons= "○"
+VAR _bars= REPT(_filledicons,_No_of_fillicons) & REPT(_emptyicons,_No_of_empty_icons)
+
+RETURN
+_bars
+```
+```
+Pct Female = DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Female"), [Total Riders(passengers)])
+```
+```
+Pct Male = DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Male"), [Total Riders(passengers)]) ```
+```
+```
+Pct Other = DIVIDE(CALCULATE([Total Riders(passengers)], Lookup_demographics[Gender]="Other"), [Total Riders(passengers)])
+```
+```
+Peak Hour Of Operation = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    FactTable_ridership, 
+    FactTable_ridership[Time],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _PeakTime= TOPN(1,_TotalPassengers_perroute, [Total Passengers], DESC)
+RETURN
+MAXX(_PeakTime,FactTable_ridership[Time])
+```
+```
+Peak Hours(Occupation) = 
+VAR _professional_PH =
+    SUMMARIZE(
+        FactTable_ridership,
+        FactTable_ridership[Time],
+        "Total Passengers",
+            CALCULATE(
+                [Total Riders(passengers)],
+                Lookup_demographics[Occupation] = "Professional"
+            )
+    )
+VAR _TopProfessional =
+    TOPN(1, _professional_PH, [Total Passengers], DESC)
+VAR _professional =
+    MAXX(_TopProfessional, FactTable_ridership[Time])
+VAR _student_PH =
+    SUMMARIZE(
+        FactTable_ridership,
+        FactTable_ridership[Time],
+        "Total Passengers1",
+            CALCULATE(
+                [Total Riders(passengers)],
+                Lookup_demographics[Occupation] = "Student"
+            )
+```
+```
+Route label = 
+VAR _Routepct=DIVIDE([Total Riders(passengers)], CALCULATE([Total Riders(passengers)], ALL(Lookup_routes)))
+VAR _Yaxis= SELECTEDVALUE(Lookup_routes[RouteName])
+VAR _indicator= IF(_Routepct>0.19,"✔","❌")
+VAR _separtor= IF(_Routepct>0.19,"|")
+VAR _pctvalue= FORMAT(_Routepct,"0.0%")
+RETURN
+_Yaxis & "|" & _pctvalue &_separtor &_indicator 
+```
+```
+TopN = 
+VAR _Ranking =
+    RANKX(
+        ALL(Lookup_buses[BusNumber]),
+        [Total Riders(passengers)],
+        ,
+        DESC,
+        DENSE
+    )
+RETURN
+IF(_Ranking <= 5, [Total Riders(passengers)], BLANK())
+```
+```
+Total bus capacity = sum(Lookup_buses[Capacity])
+```
+```
+Total Buses = DISTINCTCOUNT(FactTable_ridership[BusID])
+```
+```
+Total Revenue = SUMX(FactTable_ridership, RELATED(Lookup_routes[TripFee])*FactTable_ridership[NumberOfRiders])
+```
+```
+Total Riders(passengers) = sum(FactTable_ridership[NumberOfRiders])
+```
+```
+Total Trips = COUNTROWS(FactTable_ridership)
+```
+```
+V Down Hour Of Operation = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    FactTable_ridership, 
+    FactTable_ridership[Time],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _DownTime= TOPN(1,_TotalPassengers_perroute, [Total Passengers], ASC)
+RETURN
+MAXX(_DownTime,[Total Passengers])
+```
+```
+V Peak Hour Of Operation = 
+VAR _TotalPassengers_perroute= 
+SUMMARIZE(
+    FactTable_ridership, 
+    FactTable_ridership[Time],
+    "Total Passengers", sum(FactTable_ridership[NumberOfRiders])
+    )
+VAR _PeakTime= TOPN(1,_TotalPassengers_perroute, [Total Passengers], DESC)
+RETURN
+MAXX(_PeakTime,[Total Passengers])
+```
+```
+YoY change = 
+VAR Curryear= 2024
+VAR _currentyearrides= CALCULATE([Total Riders(passengers)], YEAR(FactTable_ridership[Date])=Curryear) 
+VAR _prevyearrides= CALCULATE([Total Riders(passengers)], YEAR(FactTable_ridership[Date])=Curryear-1) 
+VAR _result= 
+IF( NOT ISBLANK(_currentyearrides) && NOT ISBLANK(_prevyearrides), DIVIDE(_currentyearrides-_prevyearrides,_prevyearrides,0))
+
+RETURN
+IF(_result<>BLANK(),_result,0)
+```
+```
+YoY check = IF([YoY change]<0,"▼","▲")
+```
+
+```
+Parameter
+Dynamic TopN = {
+    ("Bottom Buses", NAMEOF('measures (2)'[BottomN]), 0),
+    ("Top Buses", NAMEOF('measures (2)'[TopN]), 1)
+}
+```
