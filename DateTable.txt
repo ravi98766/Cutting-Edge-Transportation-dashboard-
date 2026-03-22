@@ -1,0 +1,29 @@
+Date = 
+VAR Maxdate =YEAR(MAX(FactTable_ridership[Date]))
+VAR Mindate =YEAR(MIN(FactTable_ridership[Date]))
+RETURN
+ADDCOLUMNS(
+    FILTER(
+    CALENDARAUTO(),
+    YEAR([Date])>=Mindate &&
+    YEAR([Date])<=Maxdate
+    ),
+    "Year", YEAR([Date]),
+    "Month", FORMAT([Date],"mmm"),
+    "MonthNum", MONTH([Date]),
+    "Day", DAY([Date]),
+    "Weekday", FORMAT([Date],"ddd"),
+    "Week_num",WEEKDAY([Date]),
+    "Quarter","Q-"&QUARTER([Date]),
+    "WeekType", IF(WEEKDAY([Date])=1,"Weekend",IF(WEEKDAY([Date])=7,"Weekend","Weekday")),
+    "WK of Month",
+            VAR FirstDayOfMonth = DATE(YEAR([Date]), MONTH([Date]), 1)
+            VAR DaysInMonth = DAY(EOMONTH([Date], 0))
+            VAR CurrentDate = [Date]
+            VAR DaysFromStart = INT(CurrentDate - FirstDayOfMonth) + 1
+            RETURN 
+            "Week-"&
+                CEILING(DaysFromStart / 7, 1),
+                 "Time", FORMAT([Date], "hh:mm AM/PM")
+           
+)
