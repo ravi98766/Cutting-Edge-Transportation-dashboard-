@@ -1,6 +1,8 @@
-### Voyage Line City Transit ##
+## Voyage Line City Transit
 _________________________________________________________________________________________
-1️⃣   **Landing Page Dashboard – Branding & Navigation Layer**
+<img width="908" height="508" alt="1 Landing page" src="https://github.com/user-attachments/assets/c56d0cf5-07ae-4f67-8767-690dfcb8abc6" />
+## LANDING PAGE
+1️⃣   **Landing Page Dashboard– Branding & Navigation Layer** 
 
 What This Page Represents
 
@@ -47,6 +49,8 @@ This page:
 Think of this as the BI portal front door.
 
 _____________________________________________________________________________________________________________
+## DASHBOARD 2
+<img width="901" height="506" alt="2 Details Dashboard" src="https://github.com/user-attachments/assets/1c7b0440-93d3-48db-9021-04e4e843c6e4" />
 
 2️⃣   **Operations & Performance Overview Dashboard : Details** 
 
@@ -186,6 +190,8 @@ It supports:
 
 •	Revenue optimization strategy
 _______________________________________________________________________________________________________________________
+## DASHBOARD 3
+<img width="902" height="503" alt="3 Metrics Dashboard" src="https://github.com/user-attachments/assets/56c4b439-4492-4f30-ba22-e818386ff10c" />
 
 3️⃣**Rider Demographics & Route Analysis: Metrics**
 (Operational Intelligence Page)
@@ -342,6 +348,7 @@ Average Age: 43
 Confirms:
 Mid-career demographic dominance.
 _____________________________________________________________________________________________________________________________
+## CONCLUSION
 **Strategic Business Story Across All Dashboards:**
 
 When combined, the full story is:
